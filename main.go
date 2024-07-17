@@ -3,14 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-)
-
-package main
-
-import (
-"fmt"
-"net/http"
-"new_go_example/handlers"
+	"new_go_example/handlers"
 )
 
 func main() {
