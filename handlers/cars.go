@@ -16,7 +16,7 @@ type Car struct {
 
 var CarBase = map[int]Car{
 	1: {
-		Mark:               "Porsche",
+		Mark:               "Niva",
 		Kilometerage:       3750,
 		NumberOfOwners:     2,
 		TechnicalСondition: "In good condition",
