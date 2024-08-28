@@ -7,52 +7,58 @@ import (
 )
 
 type Car struct {
-	Mark               string `json:"Mark"`
-	Kilometerage       int    `json:"Kilometerage"`
-	NumberOfOwners     int    `json:"Number_of_owners"`
-	TechnicalСondition string `json:"Technical_condition"`
-	TrafficAccidents   bool   `json:"Traffic_accidents"`
+	Car_id              int    `json:"car_id"`
+	Mark                string `json:"mark"`
+	Kilometerage        int    `json:"kilometerage"`
+	Number_of_owners    int    `json:"number_of_owners"`
+	Technical_condition string `json:"technical_condition"`
+	Traffic_accidents   bool   `json:"traffic_accidents"`
 }
 
 var CarBase = map[int]Car{
 	1: {
-		Mark:               "Niva",
-		Kilometerage:       3750,
-		NumberOfOwners:     2,
-		TechnicalСondition: "In good condition",
-		TrafficAccidents:   false,
+		Car_id:              1,
+		Mark:                "Niva",
+		Kilometerage:        3750,
+		Number_of_owners:    2,
+		Technical_condition: "In good condition",
+		Traffic_accidents:   false,
 	},
 	2: {
-		Mark:               "Lada",
-		Kilometerage:       78000,
-		NumberOfOwners:     6,
-		TechnicalСondition: "in poor condition",
-		TrafficAccidents:   true,
+		Car_id:              2,
+		Mark:                "Lada",
+		Kilometerage:        78000,
+		Number_of_owners:    6,
+		Technical_condition: "in poor condition",
+		Traffic_accidents:   true,
 	},
 	3: {
-		Mark:               "Nissan",
-		Kilometerage:       29000,
-		NumberOfOwners:     1,
-		TechnicalСondition: "In good condition",
-		TrafficAccidents:   false,
+		Car_id:              3,
+		Mark:                "Nissan",
+		Kilometerage:        29000,
+		Number_of_owners:    1,
+		Technical_condition: "In good condition",
+		Traffic_accidents:   false,
 	},
 	4: {
-		Mark:               "BMW",
-		Kilometerage:       42000,
-		NumberOfOwners:     2,
-		TechnicalСondition: "in poor condition",
-		TrafficAccidents:   false,
+		Car_id:              4,
+		Mark:                "BMW",
+		Kilometerage:        42000,
+		Number_of_owners:    2,
+		Technical_condition: "in poor condition",
+		Traffic_accidents:   false,
 	},
 	5: {
-		Mark:               "Toyota",
-		Kilometerage:       17500,
-		NumberOfOwners:     2,
-		TechnicalСondition: "In good condition",
-		TrafficAccidents:   true,
+		Car_id:              5,
+		Mark:                "Toyota",
+		Kilometerage:        17500,
+		Number_of_owners:    2,
+		Technical_condition: "In good condition",
+		Traffic_accidents:   true,
 	},
 }
 
-func GetCars(w http.ResponseWriter, r *http.Request) {
+func GetAllCars(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	bytesBody, err := json.Marshal(CarBase)
 	if err != nil {
@@ -67,9 +73,21 @@ func GetCars(w http.ResponseWriter, r *http.Request) {
 func GetCar(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	fmt.Println(r.URL.Query().Get("Mark"))
-	fmt.Println(r.URL.Query().Get("Kilometerage"))
-	fmt.Println(r.URL.Query().Get("NumberOfOwners"))
-	fmt.Println(r.URL.Query().Get("TechnicalСondition"))
-	fmt.Println(r.URL.Query().Get("TrafficAccidents"))
+	fmt.Println(r.URL.Query().Get("mark"))
+	fmt.Println(r.URL.Query().Get("kilometerage"))
+	fmt.Println(r.URL.Query().Get("number_of_owners"))
+	fmt.Println(r.URL.Query().Get("technical_conditions"))
+	fmt.Println(r.URL.Query().Get("traffic_accidents"))
+}
+
+func DeleteCar(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+}
+
+func AddCar(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+}
+
+func ChangeCar(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 }
