@@ -126,7 +126,7 @@ func AddSeller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated) // 201 Created
+	w.WriteHeader(http.StatusCreated)
 	bytesBody, err := json.Marshal(seller)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
