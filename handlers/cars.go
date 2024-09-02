@@ -1,69 +1,55 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+
+	_ "github.com/lib/pq"
 )
 
 type Car struct {
-	Car_id              int    `json:"car_id"`
+	Id                  int    `json:"id"`
 	Mark                string `json:"mark"`
+	Technical_condition string `json:"technical_condition"`
 	Kilometerage        int    `json:"kilometerage"`
 	Number_of_owners    int    `json:"number_of_owners"`
-	Technical_condition string `json:"technical_condition"`
 	Traffic_accidents   bool   `json:"traffic_accidents"`
-}
-
-var CarBase = map[int]Car{
-	1: {
-		Car_id:              1,
-		Mark:                "Niva",
-		Kilometerage:        3750,
-		Number_of_owners:    2,
-		Technical_condition: "In good condition",
-		Traffic_accidents:   false,
-	},
-	2: {
-		Car_id:              2,
-		Mark:                "Lada",
-		Kilometerage:        78000,
-		Number_of_owners:    6,
-		Technical_condition: "in poor condition",
-		Traffic_accidents:   true,
-	},
-	3: {
-		Car_id:              3,
-		Mark:                "Nissan",
-		Kilometerage:        29000,
-		Number_of_owners:    1,
-		Technical_condition: "In good condition",
-		Traffic_accidents:   false,
-	},
-	4: {
-		Car_id:              4,
-		Mark:                "BMW",
-		Kilometerage:        42000,
-		Number_of_owners:    2,
-		Technical_condition: "in poor condition",
-		Traffic_accidents:   false,
-	},
-	5: {
-		Car_id:              5,
-		Mark:                "Toyota",
-		Kilometerage:        17500,
-		Number_of_owners:    2,
-		Technical_condition: "In good condition",
-		Traffic_accidents:   true,
-	},
 }
 
 func GetAllCars(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	bytesBody, err := json.Marshal(CarBase)
+
+	rows, err := db.Query("SELECT id, mark, technical_condition,kilometerage,number_of_owners,traffic_accidents FROM cars")
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	defer rows.Close()
+
+	var cars []Car
+	for rows.Next() {
+		var car Car
+		if err := rows.Scan(&car.Id, &car.Mark, &car.Technical_condition, &car.Kilometerage, &car.Number_of_owners, &car.Traffic_accidents); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		cars = append(cars, car)
+	}
+	if err := rows.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	bytesBody, err := json.Marshal(cars)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	_, err = w.Write(bytesBody)
 	if err != nil {
 		fmt.Println(err)
@@ -73,21 +59,79 @@ func GetAllCars(w http.ResponseWriter, r *http.Request) {
 func GetCar(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	fmt.Println(r.URL.Query().Get("mark"))
-	fmt.Println(r.URL.Query().Get("kilometerage"))
-	fmt.Println(r.URL.Query().Get("number_of_owners"))
-	fmt.Println(r.URL.Query().Get("technical_conditions"))
-	fmt.Println(r.URL.Query().Get("traffic_accidents"))
+	idOfCar, err := strconv.Atoi(r.URL.Query().Get("id_of_car"))
+	if err != nil {
+		http.Error(w, "Неправильный id машины", http.StatusInternalServerError)
+		return
+	}
+
+	var car Car
+	err = db.QueryRow("SELECT id, mark, technical_condition, kilometerage, number_of_owners, traffic_accidents FROM cars WHERE id = $1", idOfCar).Scan(
+		&car.Id, &car.Mark, &car.Technical_condition, &car.Kilometerage, &car.Number_of_owners, &car.Traffic_accidents)
+	if err == sql.ErrNoRows {
+		http.Error(w, "Car not found", http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	bytesBody, err := json.Marshal(car)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(bytesBody)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func DeleteCar(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	idOfCar, err := strconv.Atoi(r.URL.Query().Get("id_of_car"))
+	if err != nil {
+		http.Error(w, "invalid car id", http.StatusBadRequest)
+		return
+	}
+
+	_, err = db.Exec("DELETE FROM cars WHERE id = $1", idOfCar)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func AddCar(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-}
 
-func ChangeCar(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	var car Car
+	if err := json.NewDecoder(r.Body).Decode(&car); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	car.Id = 0
+
+	err := db.QueryRow(
+		"INSERT INTO cars(mark,technical_condition, kilometerage, number_of_owners, traffic_accidents) VALUES ($1,$2,$3,$4,$5) RETURNING id", car.Mark, car.Technical_condition, car.Kilometerage, car.Number_of_owners, car.Traffic_accidents).Scan(&car.Id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	bytesBody, err := json.Marshal(car)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(bytesBody)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 }

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -18,23 +17,6 @@ type Seller struct {
 	Age        int    `json:"age"`
 	Experience int    `json:"experience"`
 	Sales      int    `json:"sales"`
-}
-
-// подключение к бд
-var db *sql.DB
-
-func InitDB() {
-	var err error
-	connStr := "user=postgres dbname=postgres sslmode=disable password=Yanelox46"
-	db, err = sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 // получение всех продавцов
@@ -108,37 +90,6 @@ func GetSeller(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// добавление продавца
-func BecomeASalesman(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	var seller Seller
-	if err := json.NewDecoder(r.Body).Decode(&seller); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err := db.QueryRow(
-		"INSERT INTO sellers (name, surname, age, experience, sales) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		seller.Name, seller.Surname, seller.Age, seller.Experience, seller.Sales).Scan(&seller.Id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	bytesBody, err := json.Marshal(seller)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	_, err = w.Write(bytesBody)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 // удаление по id
 func DeleteSalesman(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -169,8 +120,7 @@ func AddSeller(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := db.QueryRow(
-		"INSERT INTO sellers (name, surname, age, experience, sales) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		seller.Name, seller.Surname, seller.Age, seller.Experience, seller.Sales).Scan(&seller.Id)
+		"INSERT INTO sellers (name, surname, age, experience, sales) VALUES ($1, $2, $3, $4, $5) RETURNING id", seller.Name, seller.Surname, seller.Age, seller.Experience, seller.Sales).Scan(&seller.Id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
