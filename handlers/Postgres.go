@@ -9,8 +9,8 @@ var db *sql.DB
 
 func InitDB() {
 	var err error
-	connStr := "user=postgres dbname=postgres sslmode=disable password=+++++++"
-	db, err = sql.Open("postgres", connStr)
+	authPost := "user=postgres dbname=postgres sslmode=disable password=+++++++"
+	db, err = sql.Open("postgres", authPost)
 	if err != nil {
 		log.Fatal(err)
 	}
