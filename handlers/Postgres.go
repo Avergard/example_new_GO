@@ -9,14 +9,14 @@ var db *sql.DB
 
 func InitDB() {
 	var err error
-	authPost := "user=postgres dbname=postgres sslmode=disable password=+++++++"
+	authPost := "user=postgres dbname=postgres sslmode=disable password=++++++"
 	db, err = sql.Open("postgres", authPost)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Ошибка открытия базы данных: %v", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Ошибка подключения к базе данных: %v", err)
 	}
 }
