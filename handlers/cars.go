@@ -69,7 +69,7 @@ func GetCar(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow("SELECT id, mark, technical_condition, kilometerage, number_of_owners, traffic_accidents FROM cars WHERE id = $1", idOfCar).Scan(
 		&car.Id, &car.Mark, &car.Technical_condition, &car.Kilometerage, &car.Number_of_owners, &car.Traffic_accidents)
 	if err == sql.ErrNoRows {
-		http.Error(w, "Car not found", http.StatusNotFound)
+		http.Error(w, "машина не найдена", http.StatusNotFound)
 		return
 	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -92,7 +92,7 @@ func DeleteCar(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	idOfCar, err := strconv.Atoi(r.URL.Query().Get("id_of_car"))
 	if err != nil {
-		http.Error(w, "invalid car id", http.StatusBadRequest)
+		http.Error(w, "неверный id", http.StatusBadRequest)
 		return
 	}
 

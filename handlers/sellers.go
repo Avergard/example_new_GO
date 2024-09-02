@@ -63,7 +63,7 @@ func GetSeller(w http.ResponseWriter, r *http.Request) {
 
 	idOfSeller, err := strconv.Atoi(r.URL.Query().Get("id_of_seller"))
 	if err != nil {
-		http.Error(w, "Invalid seller ID", http.StatusBadRequest)
+		http.Error(w, "неверный id", http.StatusBadRequest)
 		return
 	}
 
@@ -71,7 +71,7 @@ func GetSeller(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow("SELECT id, name, surname, age, experience, sales FROM sellers WHERE id = $1", idOfSeller).Scan(
 		&seller.Id, &seller.Name, &seller.Surname, &seller.Age, &seller.Experience, &seller.Sales)
 	if err == sql.ErrNoRows {
-		http.Error(w, "Seller not found", http.StatusNotFound)
+		http.Error(w, "продавец не найден", http.StatusNotFound)
 		return
 	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -96,7 +96,7 @@ func DeleteSalesman(w http.ResponseWriter, r *http.Request) {
 
 	idOfSeller, err := strconv.Atoi(r.URL.Query().Get("id_of_seller"))
 	if err != nil {
-		http.Error(w, "Invalid seller ID", http.StatusBadRequest)
+		http.Error(w, "неверный id", http.StatusBadRequest)
 		return
 	}
 
