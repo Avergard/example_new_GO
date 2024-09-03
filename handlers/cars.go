@@ -117,7 +117,7 @@ func AddCar(w http.ResponseWriter, r *http.Request) {
 	car.Id = 0
 
 	err := db.QueryRow(
-		"INSERT INTO cars(mark,technical_condition, kilometerage, number_of_owners, traffic_accidents) VALUES ($1,$2,$3,$4,$5) RETURNING id", car.Mark, car.Technical_condition, car.Kilometerage, car.Number_of_owners, car.Traffic_accidents).Scan(&car.Id)
+		"INSERT INTO cars(mark, technical_condition, kilometerage, number_of_owners, traffic_accidents) VALUES ($1,$2,$3,$4,$5) RETURNING id", car.Mark, car.Technical_condition, car.Kilometerage, car.Number_of_owners, car.Traffic_accidents).Scan(&car.Id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

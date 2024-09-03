@@ -119,6 +119,8 @@ func AddSeller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	seller.Id = 0
+
 	err := db.QueryRow(
 		"INSERT INTO sellers (name, surname, age, experience, sales) VALUES ($1, $2, $3, $4, $5) RETURNING id", seller.Name, seller.Surname, seller.Age, seller.Experience, seller.Sales).Scan(&seller.Id)
 	if err != nil {
