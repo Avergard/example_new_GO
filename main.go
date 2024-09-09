@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/Avergard/example_new_GO/handlers"
+	"github.com/Avergard/example_new_GO/helpers"
 	_ "github.com/lib/pq"
 	"net/http"
 )
 
 func main() {
 
-	handlers.InitDB()
+	helpers.InitDB()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/car/get_all", handlers.GetAllCars)

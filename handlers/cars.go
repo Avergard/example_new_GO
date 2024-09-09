@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/Avergard/example_new_GO/helpers"
 	"net/http"
 	"strconv"
 
@@ -11,7 +12,7 @@ import (
 )
 
 type Car struct {
-	Id                  int    `json:"id"`
+	ID                  int    `json:"id"`
 	Mark                string `json:"mark"`
 	Technical_condition string `json:"technical_condition"`
 	Kilometerage        int    `json:"kilometerage"`
@@ -22,7 +23,7 @@ type Car struct {
 func GetAllCars(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	rows, err := db.Query("SELECT id, mark, technical_condition,kilometerage,number_of_owners,traffic_accidents FROM cars")
+	rows, err := helpers.DB.Query("SELECT id, mark, technical_condition,kilometerage,number_of_owners,traffic_accidents FROM cars")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -33,7 +34,7 @@ func GetAllCars(w http.ResponseWriter, r *http.Request) {
 	var cars []Car
 	for rows.Next() {
 		var car Car
-		if err := rows.Scan(&car.Id, &car.Mark, &car.Technical_condition, &car.Kilometerage, &car.Number_of_owners, &car.Traffic_accidents); err != nil {
+		if err := rows.Scan(&car.ID, &car.Mark, &car.Technical_condition, &car.Kilometerage, &car.Number_of_owners, &car.Traffic_accidents); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -66,8 +67,8 @@ func GetCar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var car Car
-	err = db.QueryRow("SELECT id, mark, technical_condition, kilometerage, number_of_owners, traffic_accidents FROM cars WHERE id = $1", idOfCar).Scan(
-		&car.Id, &car.Mark, &car.Technical_condition, &car.Kilometerage, &car.Number_of_owners, &car.Traffic_accidents)
+	err = helpers.DB.QueryRow("SELECT id, mark, technical_condition, kilometerage, number_of_owners, traffic_accidents FROM cars WHERE id = $1", idOfCar).Scan(
+		&car.ID, &car.Mark, &car.Technical_condition, &car.Kilometerage, &car.Number_of_owners, &car.Traffic_accidents)
 	if err == sql.ErrNoRows {
 		http.Error(w, "машина не найдена", http.StatusNotFound)
 		return
@@ -96,7 +97,7 @@ func DeleteCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec("DELETE FROM cars WHERE id = $1", idOfCar)
+	_, err = helpers.DB.Exec("DELETE FROM cars WHERE id = $1", idOfCar)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -114,8 +115,8 @@ func AddCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := db.QueryRow(
-		"INSERT INTO cars(mark, technical_condition, kilometerage, number_of_owners, traffic_accidents) VALUES ($1,$2,$3,$4,$5) RETURNING id", car.Mark, car.Technical_condition, car.Kilometerage, car.Number_of_owners, car.Traffic_accidents).Scan(&car.Id)
+	err := helpers.DB.QueryRow(
+		"INSERT INTO cars(mark, technical_condition, kilometerage, number_of_owners, traffic_accidents) VALUES ($1,$2,$3,$4,$5) RETURNING id", car.Mark, car.Technical_condition, car.Kilometerage, car.Number_of_owners, car.Traffic_accidents).Scan(&car.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

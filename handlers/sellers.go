@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/Avergard/example_new_GO/helpers"
 	"net/http"
 	"strconv"
 
@@ -11,19 +12,19 @@ import (
 )
 
 type Seller struct {
-	Id/*ID*/ int        `json:"id"`
-	Name         string `json:"name"`
-	Surname      string `json:"surname"`
-	Age          int    `json:"age"`
-	Experience   int    `json:"experience"`
-	Sales        int    `json:"sales"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Surname    string `json:"surname"`
+	Age        int    `json:"age"`
+	Experience int    `json:"experience"`
+	Sales      int    `json:"sales"`
 }
 
 // получение всех продавцов
 func GetAllSellers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	rows, err := db.Query("SELECT id, name, surname, age, experience, sales FROM sellers")
+	rows, err := helpers.DB.Query("SELECT id, name, surname, age, experience, sales FROM sellers")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -33,7 +34,7 @@ func GetAllSellers(w http.ResponseWriter, r *http.Request) {
 	var sellers []Seller
 	for rows.Next() {
 		var seller Seller
-		if err := rows.Scan(&seller.Id, &seller.Name, &seller.Surname, &seller.Age, &seller.Experience, &seller.Sales); err != nil {
+		if err := rows.Scan(&seller.ID, &seller.Name, &seller.Surname, &seller.Age, &seller.Experience, &seller.Sales); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -68,8 +69,8 @@ func GetSeller(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var seller Seller
-	err = db.QueryRow("SELECT id, name, surname, age, experience, sales FROM sellers WHERE id = $1", idOfSeller).Scan(
-		&seller.Id, &seller.Name, &seller.Surname, &seller.Age, &seller.Experience, &seller.Sales)
+	err = helpers.DB.QueryRow("SELECT id, name, surname, age, experience, sales FROM sellers WHERE id = $1", idOfSeller).Scan(
+		&seller.ID, &seller.Name, &seller.Surname, &seller.Age, &seller.Experience, &seller.Sales)
 	if err == sql.ErrNoRows {
 		http.Error(w, "продавец не найден", http.StatusNotFound)
 		return
@@ -100,7 +101,7 @@ func DeleteSalesman(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec("DELETE FROM sellers WHERE id = $1", idOfSeller)
+	_, err = helpers.DB.Exec("DELETE FROM sellers WHERE id = $1", idOfSeller)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -119,10 +120,8 @@ func AddSeller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	seller.Id = 0
-
-	err := db.QueryRow(
-		"INSERT INTO sellers (name, surname, age, experience, sales) VALUES ($1, $2, $3, $4, $5) RETURNING id", seller.Name, seller.Surname, seller.Age, seller.Experience, seller.Sales).Scan(&seller.Id)
+	err := helpers.DB.QueryRow(
+		"INSERT INTO sellers (name, surname, age, experience, sales) VALUES ($1, $2, $3, $4, $5) RETURNING iD", seller.Name, seller.Surname, seller.Age, seller.Experience, seller.Sales).Scan(&seller.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

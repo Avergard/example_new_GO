@@ -2,26 +2,32 @@ package helpers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 )
 
-var db *sql.DB
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "postgres"
+	dbname   = "postgres"
+)
+
+var DB *sql.DB
 
 func InitDB() {
+	authpost := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
 	var err error
-	authPost := "user=postgres dbname=postgres sslmode=disable password=yourPass"
-	db, err = sql.Open("postgres", authPost)
+	DB, err = sql.Open("postgres", authpost)
 	if err != nil {
-		log.Fatalf("Ошибка открытия базы данных: %v", err)
+		log.Fatalf("Error opening database: %v", err)
 	}
 
-	err = db.Ping()
+	err = DB.Ping()
 	if err != nil {
-		log.Fatalf("Ошибка подключения к базе данных: %v", err)
+		log.Fatalf("Error connecting database: %v", err)
 	}
 }
-
-/*вынести данные authpost В константу как у дена
-Postgres поменять на postgres
-
-*/
