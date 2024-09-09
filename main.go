@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/Avergard/example_new_GO/handlers"
+	_ "github.com/lib/pq"
 	"net/http"
-	"new_go_example/handlers"
 )
 
 func main() {
@@ -11,15 +12,15 @@ func main() {
 	handlers.InitDB()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/car/get_all_cars", handlers.GetAllCars)
+	mux.HandleFunc("/api/car/get_all", handlers.GetAllCars)
 	mux.HandleFunc("/api/car/get_one", handlers.GetCar)
-	mux.HandleFunc("/api/car/delete_car", handlers.DeleteCar)
-	mux.HandleFunc("/api/car/add_car", handlers.AddCar)
+	mux.HandleFunc("/api/car/delete", handlers.DeleteCar)
+	mux.HandleFunc("/api/car/add", handlers.AddCar)
 
-	mux.HandleFunc("/api/seller/get_all_sellers", handlers.GetAllSellers)
-	mux.HandleFunc("/api/seller/get_seller", handlers.GetSeller)
-	mux.HandleFunc("/api/seller/delete_seller", handlers.DeleteSalesman)
-	mux.HandleFunc("/api/seller/add_seller", handlers.AddSeller)
+	mux.HandleFunc("/api/seller/get_all", handlers.GetAllSellers)
+	mux.HandleFunc("/api/seller/get", handlers.GetSeller)
+	mux.HandleFunc("/api/seller/delete", handlers.DeleteSalesman)
+	mux.HandleFunc("/api/seller/add", handlers.AddSeller)
 
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
@@ -40,5 +41,6 @@ func main() {
   "experience": 5,
   "sales": 100
 }
-
+module github.com/Avergard/backend
+require github.com/lib/pq v1.10.9
 */

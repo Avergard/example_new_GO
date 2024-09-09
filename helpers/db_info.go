@@ -1,6 +1,6 @@
-package handlers
+package helpers
 
-/*import (
+import (
 	"database/sql"
 	"log"
 )

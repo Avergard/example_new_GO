@@ -11,12 +11,12 @@ import (
 )
 
 type Seller struct {
-	Id         int    `json:"id"`
-	Name       string `json:"name"`
-	Surname    string `json:"surname"`
-	Age        int    `json:"age"`
-	Experience int    `json:"experience"`
-	Sales      int    `json:"sales"`
+	Id/*ID*/ int        `json:"id"`
+	Name         string `json:"name"`
+	Surname      string `json:"surname"`
+	Age          int    `json:"age"`
+	Experience   int    `json:"experience"`
+	Sales        int    `json:"sales"`
 }
 
 // получение всех продавцов
@@ -140,3 +140,8 @@ func AddSeller(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 }
+
+/*http error заменить на log.error
+инсерт заменить, аппенд заменить на общее получение инфы
+ID, не id
+*/
