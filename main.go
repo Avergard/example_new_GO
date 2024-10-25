@@ -1,15 +1,63 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/Avergard/example_new_GO/handlers"
 	"github.com/Avergard/example_new_GO/helpers"
 	_ "github.com/lib/pq"
-	"net/http"
 )
 
-func main() {
+type SiteInfo struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Version     string `json:"version"`
+	Author      string `json:"author"`
+}
 
+func infoSiteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	siteInfo := SiteInfo{
+		Name:        "Сайт для задания",
+		Description: "Этот сайт создан для демонстрации.",
+		Version:     "1.0.0",
+		Author:      "Александ Азизов",
+	}
+
+	if err := json.NewEncoder(w).Encode(siteInfo); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func infoPageHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	siteInfo := SiteInfo{
+		Name:        "Сайт для задания",
+		Description: "Этот сайт создан для демонстрации.",
+		Version:     "1.0.0",
+		Author:      "Александ Азизов",
+	}
+
+	json.NewEncoder(w).Encode(siteInfo)
+}
+
+func setupCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if r.Method == "OPTIONS" {
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func main() {
 	helpers.InitDB()
 
 	mux := http.NewServeMux()
@@ -23,9 +71,13 @@ func main() {
 	mux.HandleFunc("/api/seller/delete", handlers.DeleteSalesman)
 	mux.HandleFunc("/api/seller/add", handlers.AddSeller)
 
-	err := http.ListenAndServe(":8080", mux)
+	mux.HandleFunc("/api/info-site", infoSiteHandler)
+
+	mux.HandleFunc("/info", infoPageHandler)
+
+	err := http.ListenAndServe(":8080", setupCORS(mux))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Ошибка запуска сервера:", err)
 	}
 }
 
